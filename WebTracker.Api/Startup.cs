@@ -35,6 +35,8 @@ namespace WebTracker.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            UpdateDB(app);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -46,6 +48,17 @@ namespace WebTracker.Api
 
             app.UseHttpsRedirection();
             app.UseMvc();
+        }
+
+        private void UpdateDB(IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var ctx = serviceScope.ServiceProvider.GetService<WebTrackerDbContext>())
+                {
+                    ctx.Database.Migrate();
+                }
+            }
         }
     }
 }
